@@ -1,4 +1,5 @@
 import base64
+import json
 from constants import *
 
 def save_string_as_text(file_path: str, data: str) -> None:
@@ -38,3 +39,24 @@ def encode_png_to_base64(file_path: str) -> str:
     # Convert to Base64, then decode to get a string (instead of bytes)
     encoded_str = base64.b64encode(file_data).decode("utf-8")
     return encoded_str
+
+def save_list_as_json(file_path: str, data_list: list) -> None:
+    """
+    Saves a Python list as a JSON file at the given file_path.
+
+    :param file_path: Path where the JSON file should be created/overwritten.
+    :param data_list: The Python list to be saved.
+    """
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(data_list, f, ensure_ascii=False, indent=2)
+
+def load_list_from_json(file_path: str) -> list:
+    """
+    Loads a list from a JSON file and returns it.
+
+    :param file_path: The path to the JSON file containing the list data.
+    :return: A Python list reconstructed from the JSON file.
+    """
+    with open(file_path, "r", encoding="utf-8") as f:
+        data_list = json.load(f)
+    return data_list

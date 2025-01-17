@@ -1,3 +1,9 @@
+#app specific
+temp_images/
+text_data/
+temp_clips/
+temp_narrations/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,5 +1,4 @@
 import wikipedia
-from crawl4ai import *
 
 class Wikipedia:
     """

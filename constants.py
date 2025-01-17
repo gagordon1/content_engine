@@ -3,6 +3,10 @@ from enum import Enum
 
 IMAGE_FILEPATH = "temp_images/"
 
+CLIPS_FILEPATH = "temp_clips/"
+
+NARRATION_FILEPATH = "temp_narrations/"
+
 ASPECT_RATIOS = {
     "youtube" : "16:9"
 }
