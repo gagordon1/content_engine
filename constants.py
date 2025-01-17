@@ -1,3 +1,5 @@
+from enum import Enum
+
 
 IMAGE_FILEPATH = "temp_images/"
 
@@ -6,15 +8,47 @@ ASPECT_RATIOS = {
 }
 
 #Company name a prefix to model name separated by "-"
-IMAGE_MODEL_NAMES = {"stability-ultra", "stability-core"}
+class IMAGE_MODEL_NAMES(str, Enum):
+    stability_ultra = "stability-ultra" 
+    stability_core = "stability-core"
 
-VISUAL_ART_STYLES = {"3d-model", "analog-film", "anime", "cinematic", "comic-book", "digital-art", 
-                     "enhance", "fantasy-art", "isometric", "line-art", "low-poly", "modeling-compound", 
-                     "neon-punk", "origami", "photographic", "pixel-art", "tile-texture"}
+class VISUAL_ART_STYLES(str, Enum): 
+    model_3d = "3d-model"
+    analog_film = "analog-film"
+    anime = "anime"
+    cinematic = "cinematic"
+    comic_book = "comic-book"
+    digital_art = "digital-art"
+    enhance = "enhance"
+    fantasy_art = "fantasy-art"
+    isometric = "isometric"
+    line_art = "line-art"
+    low_poly = "low-poly"
+    modeling_compound = "modeling-compound"
+    neon_punk = "neon-punk"
+    origami = "origami"
+    photographic = "photographic"
+    pixel_art = "pixel-art"
+    tile_texture = "tile-texture"
 
-VALID_CONTENT_TYPES = {"slideshow", "montage", "promotional", "tutorial"}
-VALID_CONTENT_TONES = {"formal", "informal", "dramatic", "friendly", "historian"}
-VALID_OUTPUT_FORMATS = {"youtube", "tiktok"}
+class CONTENT_TYPES(str, Enum): 
+    slideshow = "slideshow"
+    montage = "montage"
+    promotional = "promotional"
+    tutorial = "tutorial"
+
+class CONTENT_TONES(str, Enum):
+    formal = "formal"
+    informal = "informal"
+    dramatic = "dramatic"
+    friendly = "friendly"
+    historian = "historian"
+
+# VALID_OUTPUT_FORMATS = {"youtube", "tiktok"}
+
+class OUTPUT_FORMATS(str, Enum):
+    youtube = "youtube"
+    tiktok = "tiktok"
 
 DEFAULT_IMAGE_FORMAT = "png"
 

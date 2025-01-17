@@ -15,15 +15,13 @@ class StabilityRequestData(TypedDict, total=False):
 
     # Optional fields:
     mode: Literal["text-to-image", "image-to-image"]
-    aspect_ratio: Literal["16:9", "1:1", "21:9", "2:3", "3:2", "4:5", "5:4", "9:16", "9:21"]
+    aspect_ratio: str
     negative_prompt: str
     # style_preset only for core model
-    style_preset : Literal["3d-model", "analog-film", "anime", "cinematic", "comic-book", "digital-art", 
-                     "enhance", "fantasy-art", "isometric", "line-art", "low-poly", "modeling-compound", 
-                     "neon-punk", "origami", "photographic", "pixel-art", "tile-texture"]
+    style_preset : VISUAL_ART_STYLES
     seed: int  # 0 <= seed <= 4294967294
     strength : float #0-1 strength of attached image
-    output_format: Literal["jpeg", "png"]
+    output_format: OUTPUT_FORMATS
     # Additional fields like model, cfg_scale, style_preset, etc. can also be added
     # as NotRequired keys if needed.
 
@@ -32,7 +30,7 @@ class ImageGenerator:
     def __init__(self, test = False):
         self.test = test
 
-    def generate_image(self, prompt : str, aspect_ratio : str,  model_name : str, style_preset : str, image : str | None = None,) -> str:
+    def generate_image(self, prompt : str, aspect_ratio : str,  model_name : IMAGE_MODEL_NAMES, style_preset : VISUAL_ART_STYLES, image : str | None = None,) -> str:
         """Given a text prompt returns the link to ai rendering of the text
 
         Args:
@@ -68,19 +66,21 @@ class StabilityImageGenerator(ImageGenerator):
         
         return output_file
 
-    def generate_image(self, prompt : str, aspect_ratio : str,  model_name : str, style_preset : str, image : str | None = None,) -> str:
+    def generate_image(self, prompt : str, aspect_ratio : str,  
+                       model_name : IMAGE_MODEL_NAMES, 
+                       style_preset : VISUAL_ART_STYLES, image : str | None = None,) -> str:
         load_dotenv()
-        model = model_name.split("")[1]
+        model = model_name.split("-")[1]
         data = {
                 "prompt": prompt,
                 "output_format": "png",
                 "aspect_ratio" : aspect_ratio,
                 "output_format" : DEFAULT_IMAGE_FORMAT
         }
-        if model_name == "stability-ultra" or model_name == "stability_core":
+        if model_name == "stability-ultra" or model_name == "stability-core":
             if model_name == "stability-core":
                 if style_preset:
-                    data["style_preset"] = style_preset
+                    data["style_preset"] = style_preset.value
             
             if model_name == "stability-ultra":
                 if image:

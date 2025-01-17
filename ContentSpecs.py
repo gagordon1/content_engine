@@ -3,7 +3,11 @@ from typing import Literal
 
 class ContentSpec:
 
-    def __init__(self, type: str, tone: str, output_format: str, duration: float, visual_art_style : str, image_model_name : Literal["stability-core", "stability-ultra"] | None = None):
+    def __init__(self, type: str, tone: str, 
+                    output_format: OUTPUT_FORMATS, 
+                    duration: float, 
+                    visual_art_style : VISUAL_ART_STYLES,
+                    image_model_name : IMAGE_MODEL_NAMES | None = None):
         """
         :param type: Category/kind of content (e.g. 'slideshow', 'montage').
         :param tone: The style or mood (e.g. 'dramatic', 'friendly').
@@ -15,35 +19,20 @@ class ContentSpec:
         Raises:
             ValueError: If any input fails the required checks.
         """
-        self.type = type
-        self.tone = tone
-        self.output_format = output_format
-        self.duration = duration
-        self.visual_art_style = visual_art_style
-        self.image_model_name = image_model_name
-
-class VideoSpec(ContentSpec):
-    """
-    A specification class that holds key information about a video request,
-    including query, type, tone, output format, and duration.
-    It performs basic checks on the input values to ensure they are valid.
-    """
-
-    def __init__(self, type: str, tone: str, output_format: str, duration: float, visual_art_style : str, image_model_name : str | None = None):
 
         # Check 'type' against allowed set
-        if type not in VALID_CONTENT_TYPES:
-            raise ValueError(f"type must be one of {VALID_CONTENT_TYPES}, got '{type}'.")
+        if type not in CONTENT_TYPES:
+            raise ValueError(f"type must be one of {CONTENT_TYPES}, got '{type}'.")
         self.type = type
 
         # Check 'tone' against allowed set
-        if tone not in VALID_CONTENT_TONES:
-            raise ValueError(f"tone must be one of {VALID_CONTENT_TONES}, got '{tone}'.")
+        if tone not in CONTENT_TONES:
+            raise ValueError(f"tone must be one of {CONTENT_TONES}, got '{tone}'.")
         self.tone = tone
 
         # Check 'output_format' against allowed set
-        if output_format not in VALID_OUTPUT_FORMATS:
-            raise ValueError(f"output_format must be one of {VALID_OUTPUT_FORMATS}, got '{output_format}'.")
+        if output_format not in OUTPUT_FORMATS:
+            raise ValueError(f"output_format must be one of {OUTPUT_FORMATS}, got '{output_format}'.")
         self.output_format = output_format
 
         # Duration check (must be non-negative)
@@ -59,12 +48,17 @@ class VideoSpec(ContentSpec):
             raise ValueError(f"image model name must be one of {IMAGE_MODEL_NAMES}, got '{image_model_name}'.")
         self.image_model_name = image_model_name
 
-    def get_aspect_ratio(self) -> str:
-        """Returns aspect ratio for the output format
+class VideoSpec(ContentSpec):
+    """
+    A specification class that holds key information about a video request,
+    including query, type, tone, output format, and duration.
+    It performs basic checks on the input values to ensure they are valid.
+    """
 
-        Returns:
-            str: 16:9 1:1 21:9 2:3 3:2 4:5 5:4 9:16 9:21
-        """
+    def __init__(self, type, tone, output_format, duration, visual_art_style, image_model_name):
+        super().__init__(type, tone, output_format, duration, visual_art_style, image_model_name)
+
+    def get_aspect_ratio(self):
         return ASPECT_RATIOS[self.output_format]
 
     def __repr__(self):

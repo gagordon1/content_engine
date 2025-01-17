@@ -3,6 +3,7 @@ from ContentSpecs import VideoSpec
 from ScriptGenerator import MontageScriptGenerator
 from VideoGenerator import MontageGenerator
 from utils import save_string_as_text, load_string_from_text, calculate_model_cost
+from constants import *
 
 raw_text_location = "text_data/raw_text"
 script_location = "text_data/siege of yorktown script"
@@ -20,13 +21,16 @@ wikipedia = Wikipedia(url="https://en.wikipedia.org/wiki/Siege_of_Yorktown")
 # Script Generation
 
 query = "Create a script for an entertaining historical video describing this"
-type = "montage"
-tone = "historian"
-output_format = "youtube"
+type = CONTENT_TYPES.montage
+tone = CONTENT_TONES.historian
+output_format = OUTPUT_FORMATS.youtube
 duration = 5
-image_model_name = "stability-core"
+image_model_name = IMAGE_MODEL_NAMES.stability_core
+visual_art_style =VISUAL_ART_STYLES.comic_book
 
-video_spec = VideoSpec(type, tone, output_format, duration, image_model_name)
+print(visual_art_style)
+
+video_spec = VideoSpec(type, tone, output_format, duration, visual_art_style, image_model_name)
 
 # script_generator = MontageScriptGenerator(text, query, video_spec, model_name="gpt-4o-mini")
 
