@@ -5,6 +5,7 @@ temp_clips/
 temp_narrations/
 background_music/
 completed_videos/
+text_data/
 *.mp4
 *.mp3
 
