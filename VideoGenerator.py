@@ -8,9 +8,6 @@ from moviepy.editor import (
     ImageClip, TextClip, CompositeVideoClip, AudioFileClip, concatenate_videoclips, vfx, CompositeAudioClip, VideoFileClip
 )
 
-import logging
-logging.getLogger("moviepy").setLevel(logging.ERROR)
-
 def parse_narration_and_captions(text: str) -> tuple[list[str], list[str]]:
     """
     Given a string that contains narration and image captions (delimited by IMAGE_SCRIPT_SEPARATOR),
@@ -21,33 +18,22 @@ def parse_narration_and_captions(text: str) -> tuple[list[str], list[str]]:
     :param text: The full raw text containing narration and caption blocks.
     :return: A tuple of two lists: (narration_list, caption_list).
     """
+    all_lines = text.split(IMAGE_SCRIPT_SEPARATOR)
 
-    # Create the regex pattern based on the separator.
-    # Use re.escape to ensure any special regex chars in the separator are handled correctly.
-    sep_escaped = re.escape(IMAGE_SCRIPT_SEPARATOR)
-    pattern = rf'{sep_escaped}(.*?){sep_escaped}'
-
-    # 1. Find all caption blocks (the group inside the separator).
-    captions = re.findall(pattern, text, flags=re.DOTALL)
-
-    # 2. Remove those blocks from the original text, leaving only narration.
-    narration_removed = re.sub(pattern, '', text, flags=re.DOTALL)
-
-    # 3. Split narration into lines, stripping whitespace and keeping only non-empty lines.
-    narration_lines = [line.strip() for line in narration_removed.split('\n') if line.strip()]
-
-    # 4. Split each caption if desired, or keep them as single blocks.
-    #    Here, we break them by lines and flatten. If you want each entire block as one entry,
-    #    just replace lines = [cap.strip()] below.
-
-    caption_list = []
-    for cap in captions:
-        lines = [line.strip() for line in cap.split('\n') if line.strip()]
-        # If you prefer each entire caption block as a single entry, do:
-        # lines = [cap.strip()]
-        caption_list.extend(lines)
-
-    return narration_lines, caption_list
+    narration_lines = []
+    image_descriptions = []
+    for i in range(len(all_lines)):
+        if all_lines[i] == "":
+            continue
+        if i% 2 == 0:
+            narration_lines.append(all_lines[i])
+            # print("Narration Line" + all_lines[i])
+        else:
+            image_descriptions.append(all_lines[i])
+            # print("Image description: " + all_lines[i])
+        
+    # print(len(narration_lines), len(image_descriptions))
+    return narration_lines, image_descriptions
 
 
 class VideoGenerator:
@@ -103,7 +89,9 @@ class VideoGenerator:
             output_filename,
             fps=24,
             codec="libx264",
-            audio_codec="aac"
+            audio_codec="aac",
+            verbose=False,
+            logger=None
         )
         return output_filename
     

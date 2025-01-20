@@ -3,8 +3,10 @@ temp_images/
 text_data/
 temp_clips/
 temp_narrations/
-background_music
-completed_videos
+background_music/
+completed_videos/
+*.mp4
+*.mp3
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

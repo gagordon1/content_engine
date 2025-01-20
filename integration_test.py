@@ -6,14 +6,14 @@ from utils import *
 from constants import *
 
 # Inputs
-text_name = "park geun hye"
-wikipedia_url = "https://en.wikipedia.org/wiki/Park_Geun-hye"
+text_name = "battle of waterloo"
+wikipedia_url = "https://en.wikipedia.org/wiki/Battle_of_Waterloo"
 
 query = "Create a script for an entertaining historical video describing this"
 type = CONTENT_TYPES.montage
 tone = CONTENT_TONES.historian
 output_format = OUTPUT_FORMATS.youtube
-duration = 2
+duration = 10
 image_model_name = IMAGE_MODEL_NAMES.stability_core
 visual_art_style =VISUAL_ART_STYLES.comic_book
 background_music = BACKGROUND_MUSIC.kobe
@@ -32,9 +32,9 @@ wikipedia = Wikipedia(url=wikipedia_url)
 
 print("scraping wikipedia page...")
 
-text = wikipedia.get_text()
+# text = wikipedia.get_text()
 
-save_string_as_text(raw_text_location, text)
+# save_string_as_text(raw_text_location, text)
 
 text = load_string_from_text(raw_text_location)
 
@@ -52,14 +52,14 @@ script_generator = MontageScriptGenerator(text, video_spec, model_name=script_ge
 
 print("generating a script...")
 
-response = script_generator.generate_script()
+# response = script_generator.generate_script()
 
-cost_summary["text_model"] = round(response["cost"],5)
+# cost_summary["text_model"] = round(response["cost"],5)
 
 # Video assembly
-script = response["script"]
+# script = response["script"]
 
-save_string_as_text(script_location, script)
+# save_string_as_text(script_location, script)
 
 script = load_string_from_text(script_location)
 
