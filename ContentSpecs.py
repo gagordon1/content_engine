@@ -7,7 +7,8 @@ class ContentSpec:
                     output_format: OUTPUT_FORMATS, 
                     duration: float, 
                     visual_art_style : VISUAL_ART_STYLES,
-                    image_model_name : IMAGE_MODEL_NAMES | None = None):
+                    image_model_name : IMAGE_MODEL_NAMES | None = None,
+                    background_music : BACKGROUND_MUSIC | None = None):
         """
         :param type: Category/kind of content (e.g. 'slideshow', 'montage').
         :param tone: The style or mood (e.g. 'dramatic', 'friendly').
@@ -48,6 +49,10 @@ class ContentSpec:
             raise ValueError(f"image model name must be one of {IMAGE_MODEL_NAMES}, got '{image_model_name}'.")
         self.image_model_name = image_model_name
 
+        if background_music and background_music not in BACKGROUND_MUSIC:
+            raise ValueError(f"background music name must be one of {BACKGROUND_MUSIC}, got '{background_music}'.")
+        self.background_music = background_music
+
 class VideoSpec(ContentSpec):
     """
     A specification class that holds key information about a video request,
@@ -55,8 +60,8 @@ class VideoSpec(ContentSpec):
     It performs basic checks on the input values to ensure they are valid.
     """
 
-    def __init__(self, type, tone, output_format, duration, visual_art_style, image_model_name):
-        super().__init__(type, tone, output_format, duration, visual_art_style, image_model_name)
+    def __init__(self, type, tone, output_format, duration, visual_art_style, image_model_name = None, background_music = None):
+        super().__init__(type, tone, output_format, duration, visual_art_style, image_model_name, background_music)
 
     def get_aspect_ratio(self):
         return ASPECT_RATIOS[self.output_format]

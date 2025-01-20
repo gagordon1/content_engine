@@ -29,8 +29,9 @@ output_format = OUTPUT_FORMATS.youtube
 duration = 5
 image_model_name = IMAGE_MODEL_NAMES.stability_core
 visual_art_style =VISUAL_ART_STYLES.comic_book
+background_music = BACKGROUND_MUSIC.kobe
 
-video_spec = VideoSpec(type, tone, output_format, duration, visual_art_style, image_model_name)
+video_spec = VideoSpec(type, tone, output_format, duration, visual_art_style, image_model_name, background_music)
 
 # script_generator = MontageScriptGenerator(text, query, video_spec, model_name="gpt-4o-mini")
 
@@ -65,6 +66,7 @@ narration_filepaths = load_list_from_json(narration_filepaths_json)
 video_gen.set_narration_filepaths(narration_filepaths)
 
 video_filepath = video_gen.generate_video()
+print(video_filepath)
 
 
 

@@ -8,7 +8,7 @@ import uuid
 from typing import Generator
 from NarrationGenerator import generate_narration_audio
 from moviepy.editor import (
-    ImageClip, TextClip, CompositeVideoClip, AudioFileClip, concatenate_videoclips, vfx
+    ImageClip, TextClip, CompositeVideoClip, AudioFileClip, concatenate_videoclips, vfx, CompositeAudioClip, VideoFileClip
 )
 
 
@@ -87,17 +87,42 @@ class MontageGenerator(VideoGenerator):
         self.narration_filepaths = []
 
     def generate_video(self) -> str: 
-        i = 0
         assert len(self.image_filepaths) == len(self.image_prompts)
-        for image_filepath in self.image_filepaths:
+        clip_paths = []
+        for i, image_filepath in enumerate(self.image_filepaths):
             narration = self.narrations[i]
             narration_filepath = self.narration_filepaths[i]
             clip = self.generate_montage_clip(image_filepath, narration_filepath, narration)
-            i+=1
-            break
+            clip_paths.append(clip)
+        
+        clips : list[VideoFileClip] = []
+        
+        current_start = 0
+        for path in clip_paths:
+            clip = VideoFileClip(path)
+            clip = clip.set_start(current_start)
+            current_start += clip.duration
+            clips.append(clip)
 
-        return ""
-    
+        total_duration = sum(c.duration for c in clips)
+        video = CompositeVideoClip(clips).set_duration(total_duration)
+        
+        # add background music if selected 
+        if self.video_spec.background_music:
+            music_track = AudioFileClip("{}/{}".format(BACKGROUND_MUSIC_FILEPATH, self.video_spec.background_music.value)).set_duration(total_duration).volumex(.15)
+            narration_track = video.audio
+            vid_audio = CompositeAudioClip([music_track, narration_track])
+            video = video.set_audio(vid_audio) #type: ignore
+        
+        output_filename = f"{COMPLETED_VIDEO_FILEPATH}_{uuid.uuid4()}.mp4"
+        video.write_videofile(
+            output_filename,
+            fps=24,
+            codec="libx264",
+            audio_codec="aac"
+        )
+        return output_filename
+
     def generate_montage_clip(self, image_path: str, narration_path: str, narration_text: str) -> str:
         """
         Given an image filepath and narration audio file, generates a video

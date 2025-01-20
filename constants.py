@@ -7,6 +7,10 @@ CLIPS_FILEPATH = "temp_clips/"
 
 NARRATION_FILEPATH = "temp_narrations/"
 
+COMPLETED_VIDEO_FILEPATH = "completed_videos/"
+
+BACKGROUND_MUSIC_FILEPATH = "background_music/"
+
 ASPECT_RATIOS = {
     "youtube" : "16:9"
 }
@@ -47,6 +51,9 @@ class CONTENT_TONES(str, Enum):
     dramatic = "dramatic"
     friendly = "friendly"
     historian = "historian"
+
+class BACKGROUND_MUSIC(str, Enum):
+    kobe = "kobe.mp3"
 
 # VALID_OUTPUT_FORMATS = {"youtube", "tiktok"}
 
