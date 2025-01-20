@@ -5,68 +5,84 @@ from VideoGenerator import MontageGenerator
 from utils import *
 from constants import *
 
-raw_text_location = "text_data/raw_text"
-script_location = "text_data/siege of yorktown script"
-image_filepaths_json = "test_images/image_paths.json"
-narration_filepaths_json = "test_narrations/narration_paths.json"
-
-wikipedia = Wikipedia(url="https://en.wikipedia.org/wiki/Siege_of_Yorktown")
-
-# Source data gathering
-
-# text = wikipedia.get_text()
-
-# save_string_as_text(raw_text_location, text)
-
-# text = load_string_from_text(raw_text_location)
-
-# Script Generation
+# Inputs
+text_name = "war in afghanistan"
+wikipedia_url = "https://en.wikipedia.org/wiki/War_in_Afghanistan_(2001-2021)"
 
 query = "Create a script for an entertaining historical video describing this"
 type = CONTENT_TYPES.montage
 tone = CONTENT_TONES.historian
 output_format = OUTPUT_FORMATS.youtube
-duration = 5
+duration = 2
 image_model_name = IMAGE_MODEL_NAMES.stability_core
 visual_art_style =VISUAL_ART_STYLES.comic_book
 background_music = BACKGROUND_MUSIC.kobe
+script_gen_model = TEXT_MODEL_NAMES.openai_o1_mini
+
+# End of Inputs
+
+raw_text_location = f"text_data/{text_name}"
+script_location = f"text_data/{text_name} script"
+image_filepaths_json = "test_images/image_paths.json"
+narration_filepaths_json = "test_narrations/narration_paths.json"
+
+wikipedia = Wikipedia(url=wikipedia_url)
+
+# Source data gathering
+
+print("scraping wikipedia page...")
+
+text = wikipedia.get_text()
+
+save_string_as_text(raw_text_location, text)
+
+text = load_string_from_text(raw_text_location)
+
+# Script Generation
+
+cost_summary = {
+    "image_model" : 0.0,
+    "text_model" : 0.0,
+    "narration_model" : 0.0
+}
 
 video_spec = VideoSpec(type, tone, output_format, duration, visual_art_style, image_model_name, background_music)
 
-# script_generator = MontageScriptGenerator(text, query, video_spec, model_name="gpt-4o-mini")
+script_generator = MontageScriptGenerator(text, video_spec, model_name=script_gen_model.value)
 
-# response = script_generator.generate_script()
+print("generating a script...")
 
-# save_string_as_text(script_location, response["script"])
+response = script_generator.generate_script()
 
-# output_cost = calculate_model_cost(response["prompt_tokens"], response["completion_tokens"], response["model_name"])
+cost_summary["text_model"] = round(response["cost"],5)
 
 # Video assembly
+script = response["script"]
+
+save_string_as_text(script_location, script)
 
 script = load_string_from_text(script_location)
 
 video_gen = MontageGenerator(script, video_spec)
 
-# out = []
-# for image in video_gen.generate_images():
-#     out.append(image)
+print("generating audio narrations...")
 
-# save_list_as_json(image_filepaths_json, out)
+cost = video_gen.generate_narrations()
 
-image_filepaths = load_list_from_json(image_filepaths_json)
+cost_summary["narration_model"] = round(cost, 5)
 
-video_gen.set_image_filepaths(image_filepaths)
+print("generating accompanying images...")
 
-# video_gen.generate_narrations()
+cost = video_gen.generate_images()
 
-# save_list_as_json(narration_filepaths_json, video_gen.narration_filepaths)
+cost_summary["image_model"] = round(cost, 5)
 
-narration_filepaths = load_list_from_json(narration_filepaths_json)
-
-video_gen.set_narration_filepaths(narration_filepaths)
+print("compiling video...")
 
 video_filepath = video_gen.generate_video()
+
 print(video_filepath)
+print(cost_summary)
 
 
 

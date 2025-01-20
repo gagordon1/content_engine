@@ -59,7 +59,7 @@ class VideoGenerator:
     def generate_video(self) -> str: #type: ignore
         pass
 
-    def generate_image(self, prompt : str, image : str | None = None) -> str:
+    def generate_image(self, prompt : str, image : str | None = None) -> tuple[str, float]:
         """Given an image prompt generates the image and returns filepath 
 
         Args:
@@ -68,14 +68,55 @@ class VideoGenerator:
 
         Returns:
             str: filepath of generated image
+            float: cost to generate image in USD
         """
+        cost = 0
         caption = "Make the following image description in {} style: {}".format(self.video_spec.visual_art_style, prompt)
         if self.video_spec.image_model_name and self.video_spec.image_model_name.split("-")[0] == "stability":
-            image_path = StabilityImageGenerator().generate_image(caption, self.video_spec.get_aspect_ratio(),self.video_spec.image_model_name, self.video_spec.visual_art_style, image = image)
+            image_path, cost = StabilityImageGenerator().generate_image(caption, self.video_spec.get_aspect_ratio(),self.video_spec.image_model_name, self.video_spec.visual_art_style, image = image)
         else:
             raise Exception("Unsupported model selected in video spec.")
-        return image_path
+        return image_path, cost
+    
+    def add_background_music(self, video : CompositeVideoClip) -> CompositeVideoClip:
+        """Given a video, adds background music according to this generator's video spec
 
+        Args:
+            video (CompositeVideoClip): a video 
+
+        Returns:
+            CompositeVideoClip: video with background music added if specified
+        """
+        total_duration = video.duration
+        if self.video_spec.background_music:
+            music_track = AudioFileClip("{}/{}".format(BACKGROUND_MUSIC_FILEPATH, self.video_spec.background_music.value)).set_duration(total_duration).volumex(.15)
+            narration_track = video.audio
+            vid_audio = CompositeAudioClip([music_track, narration_track])
+            video = video.set_audio(vid_audio) #type: ignore
+        return video
+    
+    def save_video_file(self, video : CompositeVideoClip) -> str:
+        output_filename = f"{COMPLETED_VIDEO_FILEPATH}_{uuid.uuid4()}.mp4"
+        video.write_videofile(
+            output_filename,
+            fps=24,
+            codec="libx264",
+            audio_codec="aac"
+        )
+        return output_filename
+    
+    def compile_clips(self, clip_paths: list[str]) -> CompositeVideoClip:
+        clips : list[VideoFileClip] = []
+        
+        current_start = 0
+        for path in clip_paths:
+            clip = VideoFileClip(path)
+            clip = clip.set_start(current_start)
+            current_start += clip.duration
+            clips.append(clip)
+
+        total_duration = sum(c.duration for c in clips)
+        return CompositeVideoClip(clips).set_duration(total_duration)
 
 class MontageGenerator(VideoGenerator):
 
@@ -87,41 +128,27 @@ class MontageGenerator(VideoGenerator):
         self.narration_filepaths = []
 
     def generate_video(self) -> str: 
+        """Generates a video assuming narrations and images have already been generated
+
+        Returns:
+            str: filepath to the completed video
+        """
         assert len(self.image_filepaths) == len(self.image_prompts)
+        assert len(self.narration_filepaths) == len(self.image_filepaths)
+        
         clip_paths = []
         for i, image_filepath in enumerate(self.image_filepaths):
             narration = self.narrations[i]
             narration_filepath = self.narration_filepaths[i]
             clip = self.generate_montage_clip(image_filepath, narration_filepath, narration)
             clip_paths.append(clip)
-        
-        clips : list[VideoFileClip] = []
-        
-        current_start = 0
-        for path in clip_paths:
-            clip = VideoFileClip(path)
-            clip = clip.set_start(current_start)
-            current_start += clip.duration
-            clips.append(clip)
+        video = self.compile_clips(clip_paths)
 
-        total_duration = sum(c.duration for c in clips)
-        video = CompositeVideoClip(clips).set_duration(total_duration)
-        
         # add background music if selected 
         if self.video_spec.background_music:
-            music_track = AudioFileClip("{}/{}".format(BACKGROUND_MUSIC_FILEPATH, self.video_spec.background_music.value)).set_duration(total_duration).volumex(.15)
-            narration_track = video.audio
-            vid_audio = CompositeAudioClip([music_track, narration_track])
-            video = video.set_audio(vid_audio) #type: ignore
+            video = self.add_background_music(video)
         
-        output_filename = f"{COMPLETED_VIDEO_FILEPATH}_{uuid.uuid4()}.mp4"
-        video.write_videofile(
-            output_filename,
-            fps=24,
-            codec="libx264",
-            audio_codec="aac"
-        )
-        return output_filename
+        return self.save_video_file(video)
 
     def generate_montage_clip(self, image_path: str, narration_path: str, narration_text: str) -> str:
         """
@@ -168,28 +195,39 @@ class MontageGenerator(VideoGenerator):
 
         return output_filename
 
-    def generate_narrations(self):
+    def generate_narrations(self) -> float:
         """Generates narrations for each clip
+        Returns:
+            float of total cost of the narrations
         """
         out = []
+        total_cost = 0.0
         for narration in self.narrations:
-            narration_filepath = generate_narration_audio(narration)
+            narration_filepath, cost = generate_narration_audio(narration)
             out.append(narration_filepath)
+            total_cost += cost
         self.set_narration_filepaths(out)
+        return total_cost
 
-    def generate_images(self):
+    def generate_images(self) -> float:
         """Generates images for each image caption
+        Returns:
+            float: total cost of creating images
         """
         out = []
         image = None
+        total_cost = 0.0
         for prompt in self.image_prompts:
             if image:
-                image = self.generate_image(prompt, image)
+                image, cost = self.generate_image(prompt, image)
+                total_cost += cost
                 out.append(image)
             else:
-                image = self.generate_image(prompt)
+                image, cost = self.generate_image(prompt)
+                total_cost += cost
                 out.append(image)
         self.set_image_filepaths(out)
+        return total_cost
     
     def set_narration_filepaths(self, narration_filepaths : list[str]):
         self.narration_filepaths = narration_filepaths

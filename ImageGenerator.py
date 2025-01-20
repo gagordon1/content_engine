@@ -30,7 +30,7 @@ class ImageGenerator:
     def __init__(self, test = False):
         self.test = test
 
-    def generate_image(self, prompt : str, aspect_ratio : str,  model_name : IMAGE_MODEL_NAMES, style_preset : VISUAL_ART_STYLES, image : str | None = None,) -> str:
+    def generate_image(self, prompt : str, aspect_ratio : str,  model_name : IMAGE_MODEL_NAMES, style_preset : VISUAL_ART_STYLES, image : str | None = None,) -> tuple[str, float]:
         """Given a text prompt returns the link to ai rendering of the text
 
         Args:
@@ -39,6 +39,8 @@ class ImageGenerator:
             model_name (str): valid model name,
             style_preset (str) : vailid style_preset
             image (str): starting point for the image (optional)
+        
+        Retrurns: tuple of the filepath to completed image and float of the cost in USD
         """
         raise NotImplementedError("Subclasses must implement this method")
     
@@ -46,8 +48,12 @@ class StabilityImageGenerator(ImageGenerator):
     def __init__(self, test = False) -> None:
         super().__init__(test)
 
-    def make_stability_request(self, data, files, model : str):
-        
+    def get_stability_cost(self, model : str) -> float:
+        credits = STABILITY_PRICING_MAP[model]
+        return credits / 100
+
+    def make_stability_request(self, data, files, model : str) -> tuple[str, float]:
+        cost = 0.0
         response = requests.post(
             f"https://api.stability.ai/v2beta/stable-image/generate/" + model,
             headers={
@@ -59,16 +65,18 @@ class StabilityImageGenerator(ImageGenerator):
          )
         output_file = IMAGE_FILEPATH + str(uuid.uuid4()) + ".png"
         if response.status_code == 200:
+            cost = self.get_stability_cost(model)
+            print("Stability image cost: " + str(cost))
             with open(output_file, 'wb') as file:
                 file.write(response.content)
         else:
             raise Exception(str(response.json()))
         
-        return output_file
+        return output_file, cost
 
     def generate_image(self, prompt : str, aspect_ratio : str,  
                        model_name : IMAGE_MODEL_NAMES, 
-                       style_preset : VISUAL_ART_STYLES, image : str | None = None,) -> str:
+                       style_preset : VISUAL_ART_STYLES, image : str | None = None,) -> tuple[str, float]:
         load_dotenv()
         model = model_name.split("-")[1]
         data = {
@@ -90,13 +98,13 @@ class StabilityImageGenerator(ImageGenerator):
                         files = {
                             "image": (image, f, "image/png")
                         }
-                        output_file = self.make_stability_request(data, files,model)
+                        output_file, cost = self.make_stability_request(data, files,model)
             else:
                 files = {"none": ''}
-                output_file = self.make_stability_request(data, files, model)
+                output_file, cost = self.make_stability_request(data, files, model)
         else:
             raise Exception("Model {} unsupported".format(model_name))
-        return output_file
+        return output_file, cost
 
 if __name__ == "__main__":
     # generator = OpenAIImageGenerator()

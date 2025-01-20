@@ -55,6 +55,12 @@ class CONTENT_TONES(str, Enum):
 class BACKGROUND_MUSIC(str, Enum):
     kobe = "kobe.mp3"
 
+class TEXT_MODEL_NAMES(str, Enum):
+    openai_4o_mini = "gpt-4o-mini"
+    openai_4o = "gpt-4o"
+    openai_o1 = "o1"
+    openai_o1_mini = "o1-mini"
+
 # VALID_OUTPUT_FORMATS = {"youtube", "tiktok"}
 
 class OUTPUT_FORMATS(str, Enum):
@@ -64,23 +70,31 @@ class OUTPUT_FORMATS(str, Enum):
 DEFAULT_IMAGE_FORMAT = "png"
 
 # https://platform.openai.com/docs/pricing
-OPENAI_PRICING_MAP = {
+OPENAI_PRICING_MAP : dict[str, dict[str, float]] = {
     "gpt-4o-mini" : {
         "input" : .15,
-        "output" : .6
+        "output" : 0.6
     },
     "gpt-4o": {
         "input" : 2.5,
-        "output" : 10
+        "output" : 10.0
+    },
+    "o1" : {
+        "input" : 15.0,
+        "ouput" : 60.0
+    },
+    "o1-mini" : {
+        "input" : 3.0,
+        "output" : 12.0
     }
 }
 
 #https://platform.stability.ai/docs/api-reference#tag/Generate/paths/~1v2beta~1stable-image~1generate~1sd3/post
 #credits per generation, 1 credit = $0.01
-STABILITY_PRICING_MAP = {
-    "core" : 3,
-    "ultra" : 8,
+STABILITY_PRICING_MAP : dict[str, float] = {
+    "core" : 3.0,
+    "ultra" : 8.0,
     "sd3.5-large": 6.5,
-    "sd3.5-large-turbo" : 4,
+    "sd3.5-large-turbo" : 4.0,
     "sd3-medium" : 3.5
 }
