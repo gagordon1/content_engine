@@ -6,8 +6,8 @@ from utils import *
 from constants import *
 
 # Inputs
-text_name = "war in afghanistan"
-wikipedia_url = "https://en.wikipedia.org/wiki/War_in_Afghanistan_(2001-2021)"
+text_name = "park geun hye"
+wikipedia_url = "https://en.wikipedia.org/wiki/Park_Geun-hye"
 
 query = "Create a script for an entertaining historical video describing this"
 type = CONTENT_TYPES.montage
@@ -67,13 +67,13 @@ video_gen = MontageGenerator(script, video_spec)
 
 print("generating audio narrations...")
 
-cost = video_gen.generate_narrations()
+cost = video_gen.generate_narrations_from_script()
 
 cost_summary["narration_model"] = round(cost, 5)
 
 print("generating accompanying images...")
 
-cost = video_gen.generate_images()
+cost = video_gen.generate_images_from_script()
 
 cost_summary["image_model"] = round(cost, 5)
 

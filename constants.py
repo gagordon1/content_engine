@@ -98,3 +98,5 @@ STABILITY_PRICING_MAP : dict[str, float] = {
     "sd3.5-large-turbo" : 4.0,
     "sd3-medium" : 3.5
 }
+
+IMAGE_SCRIPT_SEPARATOR = "@"

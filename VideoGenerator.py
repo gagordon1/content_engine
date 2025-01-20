@@ -2,53 +2,53 @@ import re
 from constants import *
 from ImageGenerator import StabilityImageGenerator
 from ContentSpecs import VideoSpec
-from utils import encode_png_to_base64
-import os
 import uuid
-from typing import Generator
 from NarrationGenerator import generate_narration_audio
 from moviepy.editor import (
     ImageClip, TextClip, CompositeVideoClip, AudioFileClip, concatenate_videoclips, vfx, CompositeAudioClip, VideoFileClip
 )
 
+import logging
+logging.getLogger("moviepy").setLevel(logging.ERROR)
 
 def parse_narration_and_captions(text: str) -> tuple[list[str], list[str]]:
     """
-    Given a string that contains narration and image captions (delimited by %^ ... %^),
+    Given a string that contains narration and image captions (delimited by IMAGE_SCRIPT_SEPARATOR),
     return two lists:
-      1) A list of narration segments (excluding content within %^ markers).
-      2) A list of caption segments (the text found within %^ markers).
+      1) A list of narration segments (excluding content within the separator markers).
+      2) A list of caption segments (the text found within the separator markers).
 
-    :param text: The full raw text containing narration and %^ ... %^ caption blocks.
+    :param text: The full raw text containing narration and caption blocks.
     :return: A tuple of two lists: (narration_list, caption_list).
     """
 
-    # Regex to match all blocks between %^ ... %^ (including multiline).
-    # We capture the text in a group so we can extract it as captions.
-    pattern = r'%\^(.*?)%\^'  # Use parentheses to capture the content inside
+    # Create the regex pattern based on the separator.
+    # Use re.escape to ensure any special regex chars in the separator are handled correctly.
+    sep_escaped = re.escape(IMAGE_SCRIPT_SEPARATOR)
+    pattern = rf'{sep_escaped}(.*?){sep_escaped}'
 
-    # 1. Find all caption blocks (the group inside %^...%^).
+    # 1. Find all caption blocks (the group inside the separator).
     captions = re.findall(pattern, text, flags=re.DOTALL)
 
-    # 2. Remove the caption blocks from the original text, leaving only narration.
-    #    We'll replace them with an empty string.
+    # 2. Remove those blocks from the original text, leaving only narration.
     narration_removed = re.sub(pattern, '', text, flags=re.DOTALL)
 
-    # 3. Split narration into lines, stripping whitespace, keeping non-empty lines.
+    # 3. Split narration into lines, stripping whitespace and keeping only non-empty lines.
     narration_lines = [line.strip() for line in narration_removed.split('\n') if line.strip()]
 
-    # 4. Similarly, split each caption into lines if desired, or keep them as raw blocks.
-    #    For consistency, let's split them line-by-line as well and flatten or keep them separate.
-    #    If you want each entire block as one entry, skip splitting by lines and just strip() them.
+    # 4. Split each caption if desired, or keep them as single blocks.
+    #    Here, we break them by lines and flatten. If you want each entire block as one entry,
+    #    just replace lines = [cap.strip()] below.
+
     caption_list = []
     for cap in captions:
-        # Split by newline, remove blank lines
         lines = [line.strip() for line in cap.split('\n') if line.strip()]
-        # If you prefer each entire caption block as one string, replace these 2 lines with:
+        # If you prefer each entire caption block as a single entry, do:
         # lines = [cap.strip()]
         caption_list.extend(lines)
 
     return narration_lines, caption_list
+
 
 class VideoGenerator:
 
@@ -71,9 +71,9 @@ class VideoGenerator:
             float: cost to generate image in USD
         """
         cost = 0
-        caption = "Make the following image description in {} style: {}".format(self.video_spec.visual_art_style, prompt)
+        prompt = "Make the following image description in {} style: {}. Do not include text in the image.".format(self.video_spec.visual_art_style, prompt)
         if self.video_spec.image_model_name and self.video_spec.image_model_name.split("-")[0] == "stability":
-            image_path, cost = StabilityImageGenerator().generate_image(caption, self.video_spec.get_aspect_ratio(),self.video_spec.image_model_name, self.video_spec.visual_art_style, image = image)
+            image_path, cost = StabilityImageGenerator().generate_image(prompt, self.video_spec.get_aspect_ratio(),self.video_spec.image_model_name, self.video_spec.visual_art_style, image = image)
         else:
             raise Exception("Unsupported model selected in video spec.")
         return image_path, cost
@@ -95,8 +95,10 @@ class VideoGenerator:
             video = video.set_audio(vid_audio) #type: ignore
         return video
     
-    def save_video_file(self, video : CompositeVideoClip) -> str:
-        output_filename = f"{COMPLETED_VIDEO_FILEPATH}_{uuid.uuid4()}.mp4"
+    def save_video_file(self, video : CompositeVideoClip, output_filename = None) -> str:
+        if output_filename == None:
+            output_filename = f"{COMPLETED_VIDEO_FILEPATH}_{uuid.uuid4()}.mp4"
+        
         video.write_videofile(
             output_filename,
             fps=24,
@@ -180,13 +182,7 @@ class MontageGenerator(VideoGenerator):
 
         # 7) Write out the final MP4
         output_filename = f"{CLIPS_FILEPATH}_{uuid.uuid4()}.mp4"
-        final_clip.write_videofile(
-            output_filename,
-            fps=24,
-            codec="libx264",
-            audio_codec="aac"
-        )
-
+        self.save_video_file(final_clip, output_filename=output_filename)
         # Clean up to release resources
         final_clip.close()
         base_clip.close()
@@ -195,7 +191,7 @@ class MontageGenerator(VideoGenerator):
 
         return output_filename
 
-    def generate_narrations(self) -> float:
+    def generate_narrations_from_script(self) -> float:
         """Generates narrations for each clip
         Returns:
             float of total cost of the narrations
@@ -209,7 +205,7 @@ class MontageGenerator(VideoGenerator):
         self.set_narration_filepaths(out)
         return total_cost
 
-    def generate_images(self) -> float:
+    def generate_images_from_script(self) -> float:
         """Generates images for each image caption
         Returns:
             float: total cost of creating images

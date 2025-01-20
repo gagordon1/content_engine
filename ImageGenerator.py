@@ -66,7 +66,6 @@ class StabilityImageGenerator(ImageGenerator):
         output_file = IMAGE_FILEPATH + str(uuid.uuid4()) + ".png"
         if response.status_code == 200:
             cost = self.get_stability_cost(model)
-            print("Stability image cost: " + str(cost))
             with open(output_file, 'wb') as file:
                 file.write(response.content)
         else:

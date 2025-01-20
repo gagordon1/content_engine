@@ -56,16 +56,12 @@ class ScriptGenerator:
         """
         pass
 
-
- 
-    
     def calculate_cost(self, prompt_tokens : int, completion_tokens : int) -> float:
         cost_per_1m_prompt_token = OPENAI_PRICING_MAP[self.model_name]["input"]
         cost_per_1m_completion_token = OPENAI_PRICING_MAP[self.model_name]["output"]
 
         return (prompt_tokens * cost_per_1m_prompt_token + 
                 completion_tokens * cost_per_1m_completion_token) / 10**6
-
 
 class MontageScriptGenerator(ScriptGenerator):
     
@@ -76,9 +72,9 @@ class MontageScriptGenerator(ScriptGenerator):
         prompt = self.source_data
         if self.spec.tone == "historian":
             prompt += "\nYou are a Harvard educated historian, "
-        prompt += "please summarize the content in a format suitable for a {} minute {} narrated video".format(self.spec.duration, self.spec.output_format)
-        prompt += "\nAfter each sentence in the narration, add a new line then insert a description for an image. Each narration block must be followed exactly one immediately after (never before) image or the video will not work. [IMPORTANT] The image description should be separated by a '%^' string at both the beginning and end of the description. Ensure that each image caption has all required information to maintain continuity (each caption will get submitted on its own to an LLM to generate an image)"
-        prompt += "\n In responding, please do not include additional symbols, formatting, titles etc. the response should just contain narration text and '%^' separated image captions"
+        prompt += f"please summarize the content in a format suitable for a {self.spec.duration} minute {self.spec.output_format} narrated video"
+        prompt += f"\nAfter each sentence in the narration, add a insert a '{IMAGE_SCRIPT_SEPARATOR}' separated description for an image. Each narration block must be followed exactly one immediately after (never before) image or the video will not work. [IMPORTANT] The image description should be separated by a '{IMAGE_SCRIPT_SEPARATOR}' string at both the beginning and end of the description. Ensure that each image caption has all required information to maintain continuity in the video (each caption will get submitted independently to a different artist who will draw the image)"
+        prompt += f"\n In responding, please do not include additional symbols, formatting, titles etc. the response should just contain narration text and '{IMAGE_SCRIPT_SEPARATOR}' separated image captions"
         print(prompt)
         return prompt
     
