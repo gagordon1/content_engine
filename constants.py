@@ -11,9 +11,13 @@ COMPLETED_VIDEO_FILEPATH = "completed_videos/"
 
 BACKGROUND_MUSIC_FILEPATH = "background_music/"
 
+TEMP_AUDIO_FILEPATH = "temp_audio"
+
 ASPECT_RATIOS = {
     "youtube" : "16:9"
 }
+
+
 
 #Company name a prefix to model name separated by "-"
 class IMAGE_MODEL_NAMES(str, Enum):

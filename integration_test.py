@@ -17,7 +17,7 @@ duration = 10
 image_model_name = IMAGE_MODEL_NAMES.stability_core
 visual_art_style =VISUAL_ART_STYLES.comic_book
 background_music = BACKGROUND_MUSIC.kobe
-script_gen_model = TEXT_MODEL_NAMES.openai_o1_mini
+script_gen_model = TEXT_MODEL_NAMES.openai_o1
 
 # End of Inputs
 

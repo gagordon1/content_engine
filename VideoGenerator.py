@@ -81,6 +81,21 @@ class VideoGenerator:
             video = video.set_audio(vid_audio) #type: ignore
         return video
     
+    def save_audio_of_video_file(self, video : CompositeVideoClip) -> str:
+
+        output_filename = f"{TEMP_AUDIO_FILEPATH}_{uuid.uuid4()}.mp3"
+        audio = video.audio
+        if audio:
+            audio.write_audiofile(
+                output_filename,
+                codec='libmp3lame',
+                bitrate="128k",
+                verbose=False,
+                logger=None
+            )
+        
+        return output_filename
+    
     def save_video_file(self, video : CompositeVideoClip, output_filename = None) -> str:
         if output_filename == None:
             output_filename = f"{COMPLETED_VIDEO_FILEPATH}_{uuid.uuid4()}.mp4"
@@ -94,6 +109,15 @@ class VideoGenerator:
             logger=None
         )
         return output_filename
+    
+    def add_captions(self, video : CompositeVideoClip) -> CompositeVideoClip:
+        """Given a video clip, add typewriter captions
+
+        Returns:
+            CompositeVideoClip: video clip
+        """
+        audio_filepath = self.save_audio_of_video_file(video)
+        pass
     
     def compile_clips(self, clip_paths: list[str]) -> CompositeVideoClip:
         clips : list[VideoFileClip] = []
@@ -133,6 +157,8 @@ class MontageGenerator(VideoGenerator):
             clip = self.generate_montage_clip(image_filepath, narration_filepath, narration)
             clip_paths.append(clip)
         video = self.compile_clips(clip_paths)
+
+        # video = self.add_captions(video) TBU
 
         # add background music if selected 
         if self.video_spec.background_music:
@@ -222,4 +248,3 @@ class MontageGenerator(VideoGenerator):
 
 if __name__ == "__main__":
     pass
-        
