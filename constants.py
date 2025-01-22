@@ -11,7 +11,7 @@ COMPLETED_VIDEO_FILEPATH = "completed_videos/"
 
 BACKGROUND_MUSIC_FILEPATH = "background_music/"
 
-TEMP_AUDIO_FILEPATH = "temp_audio"
+TEMP_AUDIO_FILEPATH = "temp_audio/"
 
 ASPECT_RATIOS = {
     "youtube" : "16:9"
@@ -90,6 +90,9 @@ OPENAI_PRICING_MAP : dict[str, dict[str, float]] = {
     "o1-mini" : {
         "input" : 3.0,
         "output" : 12.0
+    },
+    "whisper-1" : {
+        "input" : 0.0006
     }
 }
 

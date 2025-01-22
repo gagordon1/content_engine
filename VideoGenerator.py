@@ -4,9 +4,12 @@ from ImageGenerator import StabilityImageGenerator
 from ContentSpecs import VideoSpec
 import uuid
 from NarrationGenerator import generate_narration_audio
+from transcribe import get_timestamped_transcriptions, TranscriptionWord
+from utils import save_list_as_json
 from moviepy.editor import (
     ImageClip, TextClip, CompositeVideoClip, AudioFileClip, concatenate_videoclips, vfx, CompositeAudioClip, VideoFileClip
 )
+from captions import add_captions_helper
 
 def parse_narration_and_captions(text: str) -> tuple[list[str], list[str]]:
     """
@@ -34,7 +37,6 @@ def parse_narration_and_captions(text: str) -> tuple[list[str], list[str]]:
         
     # print(len(narration_lines), len(image_descriptions))
     return narration_lines, image_descriptions
-
 
 class VideoGenerator:
 
@@ -81,11 +83,12 @@ class VideoGenerator:
             video = video.set_audio(vid_audio) #type: ignore
         return video
     
-    def save_audio_of_video_file(self, video : CompositeVideoClip) -> str:
+    def save_audio_of_video_file(self, video : CompositeVideoClip | VideoFileClip) -> str:
 
         output_filename = f"{TEMP_AUDIO_FILEPATH}_{uuid.uuid4()}.mp3"
         audio = video.audio
         if audio:
+            audio.fps = 44100
             audio.write_audiofile(
                 output_filename,
                 codec='libmp3lame',
@@ -110,14 +113,15 @@ class VideoGenerator:
         )
         return output_filename
     
-    def add_captions(self, video : CompositeVideoClip) -> CompositeVideoClip:
+    def add_captions(self, video : CompositeVideoClip | VideoFileClip) -> tuple[CompositeVideoClip, float]:
         """Given a video clip, add typewriter captions
 
         Returns:
             CompositeVideoClip: video clip
         """
         audio_filepath = self.save_audio_of_video_file(video)
-        pass
+        transcription_words, cost = get_timestamped_transcriptions(audio_filepath)
+        return add_captions_helper(transcription_words, video), cost
     
     def compile_clips(self, clip_paths: list[str]) -> CompositeVideoClip:
         clips : list[VideoFileClip] = []
@@ -141,11 +145,12 @@ class MontageGenerator(VideoGenerator):
         self.image_filepaths = []
         self.narration_filepaths = []
 
-    def generate_video(self) -> str: 
+    def generate_video(self) -> tuple[str, float]: 
         """Generates a video assuming narrations and images have already been generated
 
         Returns:
             str: filepath to the completed video
+            float: cost to add captions to video
         """
         assert len(self.image_filepaths) == len(self.image_prompts)
         assert len(self.narration_filepaths) == len(self.image_filepaths)
@@ -158,13 +163,14 @@ class MontageGenerator(VideoGenerator):
             clip_paths.append(clip)
         video = self.compile_clips(clip_paths)
 
-        # video = self.add_captions(video) TBU
+        print("adding captions...")
+        video, cost = self.add_captions(video)
 
         # add background music if selected 
         if self.video_spec.background_music:
             video = self.add_background_music(video)
         
-        return self.save_video_file(video)
+        return self.save_video_file(video), cost
 
     def generate_montage_clip(self, image_path: str, narration_path: str, narration_text: str) -> str:
         """
@@ -247,4 +253,8 @@ class MontageGenerator(VideoGenerator):
 
 
 if __name__ == "__main__":
+    # test_video_no_background_music = "test_video/_b1b7d791-3415-4ac3-8d56-3d614f1de174.mp4"
+    # video_gen = VideoGenerator(None, None) #type: ignore
+    # video = video_gen.add_captions(VideoFileClip(test_video_no_background_music))
     pass
+    

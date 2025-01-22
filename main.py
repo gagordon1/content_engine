@@ -6,8 +6,8 @@ from utils import *
 from constants import *
 
 # Inputs
-text_name = "battle of waterloo"
-wikipedia_url = "https://en.wikipedia.org/wiki/Battle_of_Waterloo"
+text_name = "war of 1812"
+wikipedia_url = "https://en.wikipedia.org/wiki/War_of_1812"
 
 query = "Create a script for an entertaining historical video describing this"
 type = CONTENT_TYPES.montage
@@ -16,8 +16,9 @@ output_format = OUTPUT_FORMATS.youtube
 duration = 10
 image_model_name = IMAGE_MODEL_NAMES.stability_core
 visual_art_style =VISUAL_ART_STYLES.comic_book
-background_music = BACKGROUND_MUSIC.kobe
-script_gen_model = TEXT_MODEL_NAMES.openai_o1
+# background_music = BACKGROUND_MUSIC.kobe 
+background_music = None
+script_gen_model = TEXT_MODEL_NAMES.openai_4o
 
 # End of Inputs
 
@@ -32,9 +33,9 @@ wikipedia = Wikipedia(url=wikipedia_url)
 
 print("scraping wikipedia page...")
 
-# text = wikipedia.get_text()
+text = wikipedia.get_text()
 
-# save_string_as_text(raw_text_location, text)
+save_string_as_text(raw_text_location, text)
 
 text = load_string_from_text(raw_text_location)
 
@@ -43,7 +44,9 @@ text = load_string_from_text(raw_text_location)
 cost_summary = {
     "image_model" : 0.0,
     "text_model" : 0.0,
-    "narration_model" : 0.0
+    "narration_model" : 0.0,
+    "transcription_model" : 0.0,
+    "total_cost" : 0.0
 }
 
 video_spec = VideoSpec(type, tone, output_format, duration, visual_art_style, image_model_name, background_music)
@@ -52,14 +55,14 @@ script_generator = MontageScriptGenerator(text, video_spec, model_name=script_ge
 
 print("generating a script...")
 
-# response = script_generator.generate_script()
+response = script_generator.generate_script()
 
-# cost_summary["text_model"] = round(response["cost"],5)
+cost_summary["text_model"] = round(response["cost"],5)
 
-# Video assembly
-# script = response["script"]
+# # Video assembly
+script = response["script"]
 
-# save_string_as_text(script_location, script)
+save_string_as_text(script_location, script)
 
 script = load_string_from_text(script_location)
 
@@ -79,7 +82,11 @@ cost_summary["image_model"] = round(cost, 5)
 
 print("compiling video...")
 
-video_filepath = video_gen.generate_video()
+video_filepath, cost = video_gen.generate_video()
+
+cost_summary["transcription_model"] = round(cost, 5)
+
+cost_summary["total_cost"] = sum(cost_summary[key] for key in cost_summary.keys())
 
 print(video_filepath)
 print(cost_summary)
