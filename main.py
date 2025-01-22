@@ -6,8 +6,8 @@ from utils import *
 from constants import *
 
 # Inputs
-text_name = "war of 1812"
-wikipedia_url = "https://en.wikipedia.org/wiki/War_of_1812"
+text_name = "mexican american war"
+wikipedia_url = "https://en.wikipedia.org/wiki/Mexican-American_War"
 
 query = "Create a script for an entertaining historical video describing this"
 type = CONTENT_TYPES.montage
