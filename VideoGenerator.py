@@ -168,6 +168,7 @@ class MontageGenerator(VideoGenerator):
 
         # add background music if selected 
         if self.video_spec.background_music:
+            print("adding background music...")
             video = self.add_background_music(video)
         
         return self.save_video_file(video), cost
