@@ -6,24 +6,22 @@ from utils import *
 from constants import *
 
 # Inputs
-text_name = "mexican american war"
-wikipedia_url = "https://en.wikipedia.org/wiki/Mexican-American_War"
+text_name = "invasion of grenada"
+wikipedia_url = "https://en.wikipedia.org/wiki/United_States_invasion_of_Grenada"
 
-query = "Create a script for an entertaining historical video describing this"
 type = CONTENT_TYPES.montage
 tone = CONTENT_TONES.historian
 output_format = OUTPUT_FORMATS.youtube
 duration = 10
 image_model_name = IMAGE_MODEL_NAMES.stability_core
 visual_art_style =VISUAL_ART_STYLES.comic_book
-# background_music = BACKGROUND_MUSIC.kobe 
-background_music = None
-script_gen_model = TEXT_MODEL_NAMES.openai_4o
+background_music = BACKGROUND_MUSIC.kobe 
+script_gen_model = TEXT_MODEL_NAMES.openai_4o_mini
 
 # End of Inputs
 
 raw_text_location = f"text_data/{text_name}"
-script_location = f"text_data/{text_name} script"
+script_location = f"text_data/{text_name} script.json"
 image_filepaths_json = "test_images/image_paths.json"
 narration_filepaths_json = "test_narrations/narration_paths.json"
 
@@ -62,11 +60,11 @@ cost_summary["text_model"] = round(response["cost"],5)
 # # Video assembly
 script = response["script"]
 
-save_string_as_text(script_location, script)
+save_dict_as_json(script_location, script) #type: ignore
 
-script = load_string_from_text(script_location)
+script = str(load_dict_from_json(script_location))
 
-video_gen = MontageGenerator(script, video_spec)
+video_gen = MontageGenerator(script, video_spec) #type: ignore
 
 print("generating audio narrations...")
 

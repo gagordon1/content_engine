@@ -4,8 +4,14 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from typing import TypedDict
 from constants import *
+from prompts import *
+import json
 
 load_dotenv()
+
+class MontageScriptFormat(TypedDict):
+    image_prompts : list[str]
+    narrations : list[str]
 
 class GeneratedScript(TypedDict):
     script: str
@@ -69,17 +75,17 @@ class MontageScriptGenerator(ScriptGenerator):
         super().__init__(source_data, spec, model_name=model_name)
     
     def generate_prompt(self):
-        prompt = self.source_data
-        if self.spec.tone == "historian":
-            prompt += "\nYou are a Harvard educated historian, "
-        prompt += f"please summarize the content in a format suitable for a {self.spec.duration} minute {self.spec.output_format} narrated video"
-        prompt += f"\nAfter each sentence in the narration, add a insert a '{IMAGE_SCRIPT_SEPARATOR}' separated description for an image. Each narration block must be followed exactly one immediately after (never before) image or the video will not work. [IMPORTANT] The image description should be separated by a '{IMAGE_SCRIPT_SEPARATOR}' string at both the beginning and end of the description. Ensure that each image caption has all required information to maintain continuity in the video (each caption will get submitted independently to a different artist who will draw the image)"
-        prompt += f"\n In responding, please do not include additional symbols, formatting, titles etc. the response should just contain narration text and '{IMAGE_SCRIPT_SEPARATOR}' separated image captions"
-        print(prompt)
-        return prompt
+        source_data = self.source_data
+        tone_prompt = TONE_MAP[self.spec.tone]
+        return MONTAGE_NARRATION_FORMAT_PROMPT.format(
+            source_data = source_data, 
+            tone_prompt = tone_prompt, 
+            duration = self.spec.duration, 
+            output_format = self.spec.output_format)
     
     def generate_script(self) -> GeneratedScript:
         prompt = self.generate_prompt()
+        print(prompt)
         client = OpenAI(
           api_key=os.environ.get("OPENAI_API_KEY"),  # This is the default and can be omitted
         )

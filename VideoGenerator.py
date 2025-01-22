@@ -3,6 +3,7 @@ from constants import *
 from ImageGenerator import StabilityImageGenerator
 from ContentSpecs import VideoSpec
 import uuid
+from ScriptGenerator import MontageScriptFormat
 from NarrationGenerator import generate_narration_audio
 from transcribe import get_timestamped_transcriptions, TranscriptionWord
 from utils import save_list_as_json
@@ -10,33 +11,9 @@ from moviepy.editor import (
     ImageClip, TextClip, CompositeVideoClip, AudioFileClip, concatenate_videoclips, vfx, CompositeAudioClip, VideoFileClip
 )
 from captions import add_captions_helper
+import json
 
-def parse_narration_and_captions(text: str) -> tuple[list[str], list[str]]:
-    """
-    Given a string that contains narration and image captions (delimited by IMAGE_SCRIPT_SEPARATOR),
-    return two lists:
-      1) A list of narration segments (excluding content within the separator markers).
-      2) A list of caption segments (the text found within the separator markers).
 
-    :param text: The full raw text containing narration and caption blocks.
-    :return: A tuple of two lists: (narration_list, caption_list).
-    """
-    all_lines = text.split(IMAGE_SCRIPT_SEPARATOR)
-
-    narration_lines = []
-    image_descriptions = []
-    for i in range(len(all_lines)):
-        if all_lines[i] == "":
-            continue
-        if i% 2 == 0:
-            narration_lines.append(all_lines[i])
-            # print("Narration Line" + all_lines[i])
-        else:
-            image_descriptions.append(all_lines[i])
-            # print("Image description: " + all_lines[i])
-        
-    # print(len(narration_lines), len(image_descriptions))
-    return narration_lines, image_descriptions
 
 class VideoGenerator:
 
@@ -140,7 +117,9 @@ class MontageGenerator(VideoGenerator):
 
     def __init__(self, script : str, video_spec : VideoSpec):
         super().__init__(script, video_spec)
-        self.narrations, self.image_prompts = parse_narration_and_captions(script)
+        print(script)
+        script_dict : MontageScriptFormat = json.loads(script)
+        self.narrations, self.image_prompts = script_dict["narrations"], script_dict["image_prompts"]
         assert len(self.narrations) == len (self.image_prompts)
         self.image_filepaths = []
         self.narration_filepaths = []
