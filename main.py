@@ -86,7 +86,7 @@ video_filepath, cost = video_gen.generate_video()
 
 cost_summary["transcription_model"] = round(cost, 5)
 
-cost_summary["total_cost"] = sum(cost_summary[key] for key in cost_summary.keys())
+cost_summary["total_cost"] = round(sum(cost_summary[key] for key in cost_summary.keys()),5)
 
 print(video_filepath)
 print(cost_summary)
