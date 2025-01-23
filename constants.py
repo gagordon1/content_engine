@@ -14,7 +14,8 @@ BACKGROUND_MUSIC_FILEPATH = "background_music/"
 TEMP_AUDIO_FILEPATH = "temp_audio/"
 
 ASPECT_RATIOS = {
-    "youtube" : "16:9"
+    "youtube" : "16:9",
+    "tiktok" : "9:16"
 }
 
 

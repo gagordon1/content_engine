@@ -6,17 +6,17 @@ from utils import *
 from constants import *
 
 # Inputs
-text_name = "invasion of grenada"
-wikipedia_url = "https://en.wikipedia.org/wiki/United_States_invasion_of_Grenada"
+text_name = "park chung hee"
+wikipedia_url = "https://en.wikipedia.org/wiki/Assassination_of_Park_Chung_Hee"
 
 type = CONTENT_TYPES.montage
 tone = CONTENT_TONES.historian
-output_format = OUTPUT_FORMATS.youtube
-duration = 10
+output_format = OUTPUT_FORMATS.tiktok
+duration = 5
 image_model_name = IMAGE_MODEL_NAMES.stability_core
 visual_art_style =VISUAL_ART_STYLES.comic_book
 background_music = BACKGROUND_MUSIC.kobe 
-script_gen_model = TEXT_MODEL_NAMES.openai_4o_mini
+script_gen_model = TEXT_MODEL_NAMES.openai_4o
 
 # End of Inputs
 

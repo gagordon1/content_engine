@@ -24,7 +24,7 @@ class Wikipedia:
         """
         # Implementation placeholder
         article_name = self.clean_url(self.url)
-        page = wikipedia.page(article_name)
+        page = wikipedia.page(article_name, auto_suggest=True)
         return page.content
     
     def clean_url(self, url: str) -> str:
