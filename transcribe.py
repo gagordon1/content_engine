@@ -30,7 +30,7 @@ def get_timestamped_transcriptions(path_to_audio_file : str)-> tuple[list[Transc
     duration_in_seconds = audio.duration
     transcription = client.audio.transcriptions.create(
         file=audio_file,
-        model=model,
+        model=model.value,
         response_format="verbose_json",
         timestamp_granularities=["word"]
     )

@@ -8,23 +8,24 @@ from utils import *
 from constants import *
 
 # Inputs
-text_name = "history of CNN"
-wikipedia_url = "https://en.wikipedia.org/wiki/History_of_CNN"
+text_name = "jonestown"
+wikipedia_url = "https://en.wikipedia.org/wiki/Jonestown"
+description = "jonestown"
 
 type = CONTENT_TYPES.montage
 tone = CONTENT_TONES.historian
 output_format = OUTPUT_FORMATS.tiktok
-duration = 5
+duration = 2
 image_model_name = IMAGE_MODEL_NAMES.stability_core
 visual_art_style =VISUAL_ART_STYLES.comic_book
-background_music = BACKGROUND_MUSIC.weeknds
+background_music = BACKGROUND_MUSIC.good_night_lofi
 script_gen_model = TEXT_MODEL_NAMES.deepseek_v2
 script_gen_model_company = TEXT_MODEL_COMPANY.deepseek
 
 # End of Inputs
 
-raw_text_location = f"text_data/{text_name}"
-script_location = f"text_data/{text_name} script.json"
+raw_text_location = f"{TEXT_DATA_PATH}/{text_name}"
+script_location = f"{MONTAGE_SCRIPT_PATH}/{text_name} script.json"
 image_filepaths_json = "test_images/image_paths.json"
 narration_filepaths_json = "test_narrations/narration_paths.json"
 
@@ -93,7 +94,7 @@ cost_summary["total_cost"] = round(sum(cost_summary[key] for key in cost_summary
 t_upload = TikTokUploader()
 
 print("uploading video to tiktok...")
-t_upload.upload(video_filepath)
+t_upload.upload(video_filepath, description)
 
 print(video_filepath)
 print(cost_summary)

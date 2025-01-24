@@ -6,17 +6,17 @@ class Uploader:
     def __init__(self):
         pass
 
-    def upload(self, path_to_file : str):
+    def upload(self, path_to_file : str, description : str):
         pass
 
 class TikTokUploader(Uploader):
     def __init__(self):
         super().__init__()
 
-    def upload(self, path_to_file : str):
+    def upload(self, path_to_file : str, description : str):
         # single video
         upload_video(path_to_file,
-                    description='this is my description',
+                    description=description,
                     cookies=TIKTOK_COOKIES_FILEPATH)
 
 if __name__ == "__main__":

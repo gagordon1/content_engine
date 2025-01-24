@@ -1,0 +1,30 @@
+{
+  "image_prompts": [
+    "An artwork depicting the U.S. Army marching towards Mexico in 1846, showcasing soldiers in period uniforms with banners",
+    "A historical map of North America highlighting the disputed territories of Texas and California",
+    "A dramatic scene of the Battle of Palo Alto, with cannons firing and troops clashing under a smoky sky",
+    "An illustration of President James K. Polk delivering a speech to Congress, emphasizing expansion and Manifest Destiny",
+    "A visual of Mexican cavalry engaging in the Thornton Affair, with bravery and determination on their faces",
+    "A serene painting of Santa Fe, New Mexico, showcasing its adobe buildings and desert landscape",
+    "An image of the United States flag being raised in California during the Bear Flag Revolt with locals watching",
+    "A depiction of General Winfield Scott's troops landing at Veracruz, illustrating the chaos of an amphibious assault",
+    "A battlefield scene of the Siege of Chapultepec in Mexico City, highlighting young cadets defending their post",
+    "A poignant moment of the signing of the Treaty of Guadalupe Hidalgo, capturing the expressions of both American and Mexican officials",
+    "A stark panorama showing the vast territories won by the United States, with a historical overlay of land loss for Mexico",
+    "An emotional reunion scene in a small town as veterans return home from the war, depicting both triumph and tragedy"
+  ],
+  "narrations": [
+    "In the year 1846, the U.S. Army embarked on a march towards Mexico, spurred by the ambitions of President James K. Polk and the promise of new territories.",
+    "The region was a hotbed of conflict, particularly over the boundary between Texas and Mexico, where both nations laid claim to land.",
+    "Tensions escalated dramatically at the Battle of Palo Alto, where American forces showcased their artillery prowess against determined Mexican cavalry.",
+    "President Polk urged Congress to support expansion, framing the war as an opportunity to fulfill America's Manifest Destiny.",
+    "On April 25, 1846, the Thornton Affair unfolded—a clash that would ignite the flames of war, as Mexican cavalry confronted U.S. troops.",
+    "As the conflict spread, American forces successfully occupied Santa Fe, marking a significant victory and a pivotal moment in the war.",
+    "In California, the Bear Flag Revolt erupted—a rebellion of American settlers against Mexican rule, resulting in the proclamation of independence.",
+    "General Winfield Scott's daring invasion began with a chaotic yet triumphant landing at Veracruz, forever changing the course of the war.",
+    "The Siege of Chapultepec became a turning point, where young Mexican cadets showcased their valor, embodying the spirit of resistance.",
+    "The war culminated in the signing of the Treaty of Guadalupe Hidalgo, a moment that forever altered the destinies of both nations.",
+    "With the signing of the treaty, a vast expanse of territory was ceded to the U.S., altering the map of North America and marking a painful loss for Mexico.",
+    "Amidst the aftermath of the war, veterans returned home—some bearing the burdens of glory, while others faced the haunting memories of battle."
+  ]
+}

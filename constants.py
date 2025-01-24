@@ -13,6 +13,10 @@ BACKGROUND_MUSIC_FILEPATH = "background_music/"
 
 TEMP_AUDIO_FILEPATH = "temp_audio/"
 
+TEXT_DATA_PATH = "text_data/"
+
+MONTAGE_SCRIPT_PATH = "montage_scripts/"
+
 ASPECT_RATIOS = {
     "youtube" : "16:9",
     "tiktok" : "9:16"
