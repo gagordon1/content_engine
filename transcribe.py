@@ -24,7 +24,7 @@ def get_timestamped_transcriptions(path_to_audio_file : str)-> tuple[list[Transc
     Returns:
         tuple[list[TranscriptionWord], float]: Tuple containing list of each transcribed word along with the cost to generate the transcription.
     """
-    model = "whisper-1"
+    model = TRANSCRIPTION_MODEL_NAMES.whisper
     audio_file = open(path_to_audio_file, "rb")
     audio = AudioFileClip(path_to_audio_file)
     duration_in_seconds = audio.duration

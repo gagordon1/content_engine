@@ -40,7 +40,7 @@ class ScriptGenerator:
       2) Text-oriented post
     """
 
-    def __init__(self, source_data : str, spec: ContentSpec, model_name = "gpt-4o-mini"):
+    def __init__(self, source_data : str, spec: ContentSpec, model_name : TEXT_MODEL_NAMES, model_company : TEXT_MODEL_COMPANY):
         """
         Initialize the ScriptGenerator with:
           :param source_data: The textual foundation (str, dict, or other structure).
@@ -50,6 +50,7 @@ class ScriptGenerator:
         self.source_data = source_data
         self.spec = spec
         self.model_name = model_name
+        self.model_company = model_company
 
     def generate_script(self) -> GeneratedScript: #type: ignore
         """
@@ -63,16 +64,22 @@ class ScriptGenerator:
         pass
 
     def calculate_cost(self, prompt_tokens : int, completion_tokens : int) -> float:
-        cost_per_1m_prompt_token = OPENAI_PRICING_MAP[self.model_name]["input"]
-        cost_per_1m_completion_token = OPENAI_PRICING_MAP[self.model_name]["output"]
-
+        
+        if self.model_company == TEXT_MODEL_COMPANY.openai:
+            cost_per_1m_prompt_token = OPENAI_PRICING_MAP[self.model_name]["input"]
+            cost_per_1m_completion_token = OPENAI_PRICING_MAP[self.model_name]["output"]
+        elif self.model_company == TEXT_MODEL_COMPANY.deepseek:
+            cost_per_1m_prompt_token = DEEPSEEK_PRICING_MAP[self.model_name]["input"]
+            cost_per_1m_completion_token = DEEPSEEK_PRICING_MAP[self.model_name]["output"]
+        
         return (prompt_tokens * cost_per_1m_prompt_token + 
                 completion_tokens * cost_per_1m_completion_token) / 10**6
 
 class MontageScriptGenerator(ScriptGenerator):
     
-    def __init__(self, source_data : str, spec: ContentSpec, model_name = "gpt-4o-mini"):
-        super().__init__(source_data, spec, model_name=model_name)
+    def __init__(self, source_data : str, spec: ContentSpec, 
+                 model_name : TEXT_MODEL_NAMES, model_company : TEXT_MODEL_COMPANY):
+        super().__init__(source_data, spec, model_name, model_company)
     
     def generate_prompt(self):
         source_data = self.source_data
@@ -85,9 +92,9 @@ class MontageScriptGenerator(ScriptGenerator):
     
     def generate_script(self) -> GeneratedScript:
         prompt = self.generate_prompt()
-        print(prompt)
         client = OpenAI(
-          api_key=os.environ.get("OPENAI_API_KEY"),  # This is the default and can be omitted
+            api_key=os.environ.get(TEXT_GEN_API_KEY_NAME[self.model_company]),
+            base_url= TEXT_GEN_BASE_URL[self.model_company]
         )
         chat_completion = client.chat.completions.create(
             messages=[

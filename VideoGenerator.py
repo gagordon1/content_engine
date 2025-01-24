@@ -21,7 +21,7 @@ class VideoGenerator:
         self.script = script
         self.video_spec = video_spec
     
-    def generate_video(self) -> str: #type: ignore
+    def generate_video(self, output_path : str | None = None) -> str: #type: ignore
         pass
 
     def generate_image(self, prompt : str, image : str | None = None) -> tuple[str, float]:
@@ -54,7 +54,7 @@ class VideoGenerator:
         """
         total_duration = video.duration
         if self.video_spec.background_music:
-            music_track = AudioFileClip("{}/{}".format(BACKGROUND_MUSIC_FILEPATH, self.video_spec.background_music.value)).set_duration(total_duration).volumex(.15)
+            music_track = AudioFileClip("{}/{}".format(BACKGROUND_MUSIC_FILEPATH, self.video_spec.background_music.value)).set_duration(total_duration).volumex(.08)
             narration_track = video.audio
             vid_audio = CompositeAudioClip([music_track, narration_track])
             video = video.set_audio(vid_audio) #type: ignore
@@ -124,7 +124,7 @@ class MontageGenerator(VideoGenerator):
         self.image_filepaths = []
         self.narration_filepaths = []
 
-    def generate_video(self) -> tuple[str, float]: 
+    def generate_video(self, output_path : str | None = None) -> tuple[str, float]: 
         """Generates a video assuming narrations and images have already been generated
 
         Returns:
@@ -150,7 +150,7 @@ class MontageGenerator(VideoGenerator):
             print("adding background music...")
             video = self.add_background_music(video)
         
-        return self.save_video_file(video), cost
+        return self.save_video_file(video, output_filename=output_path), cost
 
     def generate_montage_clip(self, image_path: str, narration_path: str, narration_text: str) -> str:
         """

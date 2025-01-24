@@ -14,7 +14,7 @@ Each image prompt will be used to prompt an image generation model, so all neces
 
 Please format your response as a valid json object with two fields "image_prompts" and "narrations" which map to lists of text.
 So each narration should have exactly one associated image prompt. 
-[IMPORTANT] Do not include any characters outside of the json object in the response. (i.e. "```json" should not be in the response)
+[IMPORTANT] Do not include any characters outside of the json object in the response. [IMPORTANT] (i.e. "```json" MUST not be in the response!)
 For example:
 
     "image_prompts" : [

@@ -44,6 +44,10 @@ class VISUAL_ART_STYLES(str, Enum):
     pixel_art = "pixel-art"
     tile_texture = "tile-texture"
 
+class TEXT_MODEL_COMPANY(str, Enum):
+    openai = "openai"
+    deepseek = "deepseek"
+
 class CONTENT_TYPES(str, Enum): 
     slideshow = "slideshow"
     montage = "montage"
@@ -58,15 +62,22 @@ class CONTENT_TONES(str, Enum):
     historian = "historian"
 
 class BACKGROUND_MUSIC(str, Enum):
-    kobe = "kobe.mp3"
+    kobe = "kobe.mp3" #copyright issue
+    good_night_lofi = "good-night-lofi-cozy-chill-music-160166.mp3"
+    weeknds = "weeknds-122592.mp3"
 
 class TEXT_MODEL_NAMES(str, Enum):
     openai_4o_mini = "gpt-4o-mini"
     openai_4o = "gpt-4o"
-    openai_o1 = "o1"
+    openai_o1 = "o1-preview"
     openai_o1_mini = "o1-mini"
+    deepseek_r1 = "deepseek-reasoner"
+    deepseek_v2 = "deepseek-chat"
 
 # VALID_OUTPUT_FORMATS = {"youtube", "tiktok"}
+
+class TRANSCRIPTION_MODEL_NAMES(str, Enum):
+    whisper = "whisper-1"
 
 class OUTPUT_FORMATS(str, Enum):
     youtube = "youtube"
@@ -75,24 +86,24 @@ class OUTPUT_FORMATS(str, Enum):
 DEFAULT_IMAGE_FORMAT = "png"
 
 # https://platform.openai.com/docs/pricing
-OPENAI_PRICING_MAP : dict[str, dict[str, float]] = {
-    "gpt-4o-mini" : {
+OPENAI_PRICING_MAP : dict[Enum, dict[str, float]] = {
+    TEXT_MODEL_NAMES.openai_4o_mini : {
         "input" : .15,
         "output" : 0.6
     },
-    "gpt-4o": {
+    TEXT_MODEL_NAMES.openai_4o: {
         "input" : 2.5,
         "output" : 10.0
     },
-    "o1" : {
+    TEXT_MODEL_NAMES.openai_o1 : {
         "input" : 15.0,
-        "ouput" : 60.0
+        "output" : 60.0
     },
-    "o1-mini" : {
+    TEXT_MODEL_NAMES.openai_o1_mini : {
         "input" : 3.0,
         "output" : 12.0
     },
-    "whisper-1" : {
+    TRANSCRIPTION_MODEL_NAMES.whisper : {
         "input" : 0.0006
     }
 }
@@ -107,4 +118,26 @@ STABILITY_PRICING_MAP : dict[str, float] = {
     "sd3-medium" : 3.5
 }
 
-IMAGE_SCRIPT_SEPARATOR = "@"
+TEXT_GEN_BASE_URL : dict[Enum, str] = {
+    TEXT_MODEL_COMPANY.openai : "https://api.openai.com/v1/",
+    TEXT_MODEL_COMPANY.deepseek : "https://api.deepseek.com"
+}
+
+TEXT_GEN_API_KEY_NAME : dict[Enum, str] = {
+    TEXT_MODEL_COMPANY.openai : "OPENAI_API_KEY",
+    TEXT_MODEL_COMPANY.deepseek : "DEEPSEEK_API_KEY"
+}
+
+DEEPSEEK_PRICING_MAP : dict[Enum, dict[str,float]] = {
+    TEXT_MODEL_NAMES.deepseek_v2 : {
+        "input" : 0.14,
+        "output" : 0.28
+    },
+    TEXT_MODEL_NAMES.deepseek_r1 : {
+        "input" : 0.14,
+        "output" : 2.19
+    },
+}
+
+# Auth
+TIKTOK_COOKIES_FILEPATH = "tiktok_auth/www.tiktok.com_cookies.txt"

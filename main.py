@@ -2,12 +2,14 @@ from data_collectors.Wikipedia import Wikipedia
 from ContentSpecs import VideoSpec
 from ScriptGenerator import MontageScriptGenerator
 from VideoGenerator import MontageGenerator
+from Uploader import TikTokUploader
+import uuid
 from utils import *
 from constants import *
 
 # Inputs
-text_name = "park chung hee"
-wikipedia_url = "https://en.wikipedia.org/wiki/Assassination_of_Park_Chung_Hee"
+text_name = "history of CNN"
+wikipedia_url = "https://en.wikipedia.org/wiki/History_of_CNN"
 
 type = CONTENT_TYPES.montage
 tone = CONTENT_TONES.historian
@@ -15,8 +17,9 @@ output_format = OUTPUT_FORMATS.tiktok
 duration = 5
 image_model_name = IMAGE_MODEL_NAMES.stability_core
 visual_art_style =VISUAL_ART_STYLES.comic_book
-background_music = BACKGROUND_MUSIC.kobe 
-script_gen_model = TEXT_MODEL_NAMES.openai_4o
+background_music = BACKGROUND_MUSIC.weeknds
+script_gen_model = TEXT_MODEL_NAMES.deepseek_v2
+script_gen_model_company = TEXT_MODEL_COMPANY.deepseek
 
 # End of Inputs
 
@@ -49,7 +52,7 @@ cost_summary = {
 
 video_spec = VideoSpec(type, tone, output_format, duration, visual_art_style, image_model_name, background_music)
 
-script_generator = MontageScriptGenerator(text, video_spec, model_name=script_gen_model.value)
+script_generator = MontageScriptGenerator(text, video_spec, script_gen_model, script_gen_model_company)
 
 print("generating a script...")
 
@@ -80,11 +83,17 @@ cost_summary["image_model"] = round(cost, 5)
 
 print("compiling video...")
 
-video_filepath, cost = video_gen.generate_video()
+completed_video_output_path = f"{COMPLETED_VIDEO_FILEPATH}{text_name}{str(uuid.uuid4())}.mp4"
+video_filepath, cost = video_gen.generate_video(output_path = completed_video_output_path)
 
 cost_summary["transcription_model"] = round(cost, 5)
 
 cost_summary["total_cost"] = round(sum(cost_summary[key] for key in cost_summary.keys()),5)
+
+t_upload = TikTokUploader()
+
+print("uploading video to tiktok...")
+t_upload.upload(video_filepath)
 
 print(video_filepath)
 print(cost_summary)

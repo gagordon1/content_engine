@@ -1,4 +1,6 @@
 #app specific
+tiktok_auth/
+temp_audio/
 temp_images/
 text_data/
 temp_clips/
